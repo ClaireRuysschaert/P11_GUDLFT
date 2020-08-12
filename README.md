@@ -13,13 +13,14 @@
 
     * [Flask](https://flask.palletsprojects.com/en/1.1.x/)
 
-        Whereas Django does a lot of things for us out of the box, Flask allows us to add only what we need
+        Whereas Django does a lot of things for us out of the box, Flask allows us to add only what we need. 
+        Install using <code> pip install flask <code>
 
     * [Virtual environment](https://virtualenv.pypa.io/en/stable/installation.html)
 
         This ensures you'll be able to install the correct packages without interfering with Python on your machine.
 
-        Before you begin, please ensure you have this installed globally.
+        Before you begin, please ensure you have this installed globally. Install using <code> pip install virtualenv <code>
 
 
 3. Installation
