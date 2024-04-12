@@ -1,17 +1,34 @@
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Booking for {{competition['name']}} || GUDLFT</title>
-</head>
-<body>
+    <script>
+      function validateForm() {
+        var points = parseInt(document.getElementById("points").textContent);
+        var places = parseInt(document.getElementById("places").value);
+        if (points < places) {
+          alert("You don't have enough points for this number of places.");
+          return false;
+        }
+        return true;
+      }
+    </script>
+  </head>
+  <body>
     <h2>{{competition['name']}}</h2>
+    Points available: <span id="points">{{club['points']}}</span> <br />
     Places available: {{competition['numberOfPlaces']}}
-    <form action="/purchasePlaces" method="post">
-        <input type="hidden" name="club" value="{{club['name']}}">
-        <input type="hidden" name="competition" value="{{competition['name']}}">
-        <label for="places">How many places?</label><input type="number" name="places" id=""/>
-        <button type="submit">Book</button>
+    <form
+      action="/purchasePlaces"
+      method="post"
+      onsubmit="return validateForm()"
+    >
+      <input type="hidden" name="club" value="{{club['name']}}" />
+      <input type="hidden" name="competition" value="{{competition['name']}}" />
+      <label for="places">How many places?</label
+      ><input type="number" name="places" id="places" min="1" />
+      <button type="submit">Book</button>
     </form>
-</body>
+  </body>
 </html>
