@@ -12,5 +12,8 @@
         <input type="email" name="email" id=""/>
         <button type="submit">Enter</button>
     </form>
+    {% if message %}
+        <p>{{ message }}</p>
+    {% endif %}
 </body>
 </html>
