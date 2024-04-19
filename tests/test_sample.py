@@ -154,3 +154,31 @@ class TestServerApp:
             club["points"] = str(original_points)
             competition["numberOfPlaces"] = str(original_number_of_places)
             save_data(self.competitions, self.clubs)
+
+    def test_purchasePlaces_not_past_competition(self):
+        """Test that a club cannot purchase places in a competition that has already passed."""
+        with app.test_client() as client:
+            # Competition that has already passed
+            competition = self.competitions[4]
+            club = self.clubs[0]
+            original_points = int(club["points"])
+            original_number_of_places = int(competition["numberOfPlaces"])
+
+            response: Response = client.post(
+                "/purchasePlaces",
+                data={
+                    "competition": competition["name"],
+                    "club": club["name"],
+                    "places": 1,
+                },
+            )
+
+            assert response.status_code == 400
+            # Handle the escaped HTML (' -> &#39;)
+            response_data: str = html.unescape(response.data.decode())
+            assert f"Sorry, this competition has already taken place." in response_data
+
+            # Set the club's points and competitions number of places back to the original points
+            club["points"] = str(original_points)
+            competition["numberOfPlaces"] = str(original_number_of_places)
+            save_data(self.competitions, self.clubs)
