@@ -1,3 +1,4 @@
+from datetime import datetime
 import json
 from flask import Flask, render_template, request, redirect, flash, url_for
 
@@ -107,7 +108,20 @@ def purchasePlaces():
         desired_places = int(request.form["places"])
         club_points = int(club["points"])
 
-        if desired_places > 12:
+        competition_date = datetime.strptime(competition["date"], "%Y-%m-%d %H:%M:%S")
+        if competition_date < datetime.now():
+            return (
+                render_template(
+                    "booking.html",
+                    club=club,
+                    competition=competition,
+                    message="Sorry, this competition has already taken place.",
+                ),
+                400,
+            )
+
+        MAX_PLACES_ALLOWES_TO_PURCHASE = 12
+        if desired_places > MAX_PLACES_ALLOWES_TO_PURCHASE:
             return (
                 render_template(
                     "booking.html",
