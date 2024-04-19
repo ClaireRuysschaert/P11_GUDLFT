@@ -1,5 +1,4 @@
 import json
-import os
 from flask import Flask, render_template, request, redirect, flash, url_for
 
 
@@ -105,34 +104,45 @@ def purchasePlaces():
 
         club = [club for club in clubs if club["name"] == request.form["club"]][0]
 
-        remaining_places = int(request.form["places"])
+        desired_places = int(request.form["places"])
         club_points = int(club["points"])
 
-        if club_points < remaining_places:
+        if desired_places > 12:
             return (
                 render_template(
                     "booking.html",
                     club=club,
                     competition=competition,
-                    message=f"Sorry, you don't have enough points to purchase {remaining_places} places.",
+                    message="Sorry, you can't purchase more than 12 places at a time.",
                 ),
                 400,
             )
 
-        if remaining_places > int(competition["numberOfPlaces"]):
+        if club_points < desired_places:
             return (
                 render_template(
                     "booking.html",
                     club=club,
                     competition=competition,
-                    message=f"Sorry, there are not enough places left in this competition to purchase {remaining_places} places.",
+                    message=f"Sorry, you don't have enough points to purchase {desired_places} places.",
                 ),
                 400,
             )
 
-        club["points"] = str(club_points - remaining_places)
+        if desired_places > int(competition["numberOfPlaces"]):
+            return (
+                render_template(
+                    "booking.html",
+                    club=club,
+                    competition=competition,
+                    message=f"Sorry, there are not enough places left in this competition to purchase {desired_places} places.",
+                ),
+                400,
+            )
+
+        club["points"] = str(club_points - desired_places)
         competition["numberOfPlaces"] = str(
-            (int(competition["numberOfPlaces"]) - remaining_places)
+            (int(competition["numberOfPlaces"]) - desired_places)
         )
         save_data(competitions, clubs)
 
