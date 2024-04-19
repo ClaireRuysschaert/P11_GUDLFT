@@ -1,0 +1,24 @@
+{
+    "clubs": [
+        {
+            "name": "Test Lifters",
+            "email": "lifters@test.com",
+            "points": "11"
+        },
+        {
+            "name": "Test The lifties",
+            "email": "lifties@test.com",
+            "points": "10"
+        },
+        {
+            "name": "Test Lifters United",
+            "email": "lifters_united@test.fr",
+            "points": "20"
+        },
+        {
+            "name": "Test Local United",
+            "email": "local_united@test.it",
+            "points": "0"
+        }
+    ]
+}
