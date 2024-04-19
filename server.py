@@ -1,24 +1,52 @@
 import json
+import os
 from flask import Flask, render_template, request, redirect, flash, url_for
 
 
-def loadClubs():
-    with open("clubs.json") as c:
-        listOfClubs = json.load(c)["clubs"]
-        return listOfClubs
+class Config(object):
+    TESTING = False
+    CLUBS_FILE = "clubs.json"
+    COMPETITIONS_FILE = "competitions.json"
 
 
-def loadCompetitions():
-    with open("competitions.json") as comps:
-        listOfCompetitions = json.load(comps)["competitions"]
-        return listOfCompetitions
+class TestConfig(object):
+    TESTING = True
+    CLUBS_FILE = "tests/clubs_test_data.json"
+    COMPETITIONS_FILE = "tests/competitions_test_data.json"
 
 
 app = Flask(__name__)
 app.secret_key = "something_special"
 
-competitions = loadCompetitions()
-clubs = loadClubs()
+
+def loadClubs():
+    with open(app.config["CLUBS_FILE"]) as clubs_file:
+        listOfClubs = json.load(clubs_file)["clubs"]
+        return listOfClubs
+
+
+def loadCompetitions():
+    with open(app.config["COMPETITIONS_FILE"]) as comps_file:
+        listOfCompetitions = json.load(comps_file)["competitions"]
+        return listOfCompetitions
+
+
+def load_data():
+    if app.config["TESTING"] == True:
+        app.config.from_object(TestConfig)
+    else:
+        app.config.from_object(Config)
+    competitions = loadCompetitions()
+    clubs = loadClubs()
+    return competitions, clubs
+
+
+def save_data(competitions, clubs):
+    with open(app.config["COMPETITIONS_FILE"], "w") as comps_file:
+        json.dump({"competitions": competitions}, comps_file)
+
+    with open(app.config["CLUBS_FILE"], "w") as clubs_file:
+        json.dump({"clubs": clubs}, clubs_file)
 
 
 @app.route("/")
@@ -28,6 +56,7 @@ def index():
 
 @app.route("/showSummary", methods=["POST"])
 def showSummary():
+    competitions, clubs = load_data()
     try:
         form_email: str = request.form["email"]
         club = [club for club in clubs if club["email"] == form_email][0]
@@ -52,6 +81,7 @@ def showSummary():
 
 @app.route("/book/<competition>/<club>")
 def book(competition, club):
+    competitions, clubs = load_data()
     foundClub = [c for c in clubs if c["name"] == club][0]
     foundCompetition = [c for c in competitions if c["name"] == competition][0]
     if foundClub and foundCompetition:
@@ -65,14 +95,62 @@ def book(competition, club):
 
 @app.route("/purchasePlaces", methods=["POST"])
 def purchasePlaces():
-    competition = [c for c in competitions if c["name"] == request.form["competition"]][
-        0
-    ]
-    club = [c for c in clubs if c["name"] == request.form["club"]][0]
-    placesRequired = int(request.form["places"])
-    competition["numberOfPlaces"] = int(competition["numberOfPlaces"]) - placesRequired
-    flash("Great-booking complete!")
-    return render_template("welcome.html", club=club, competitions=competitions)
+    competitions, clubs = load_data()
+    try:
+        competition = [
+            compet
+            for compet in competitions
+            if compet["name"] == request.form["competition"]
+        ][0]
+
+        club = [club for club in clubs if club["name"] == request.form["club"]][0]
+
+        remaining_places = int(request.form["places"])
+        club_points = int(club["points"])
+
+        if club_points < remaining_places:
+            return (
+                render_template(
+                    "booking.html",
+                    club=club,
+                    competition=competition,
+                    message=f"Sorry, you don't have enough points to purchase {remaining_places} places.",
+                ),
+                400,
+            )
+
+        if remaining_places > int(competition["numberOfPlaces"]):
+            return (
+                render_template(
+                    "booking.html",
+                    club=club,
+                    competition=competition,
+                    message=f"Sorry, there are not enough places left in this competition to purchase {remaining_places} places.",
+                ),
+                400,
+            )
+
+        club["points"] = str(club_points - remaining_places)
+        competition["numberOfPlaces"] = str(
+            (int(competition["numberOfPlaces"]) - remaining_places)
+        )
+        save_data(competitions, clubs)
+
+        return render_template(
+            "welcome.html",
+            club=club,
+            competitions=competitions,
+            message="Great-booking complete!",
+        )
+    except IndexError as e:
+        print("Error in purchasePlaces")
+        for compet in competitions:
+            print(f"compet = {compet}")
+        print(f'competition form : {request.form["competition"]}')
+        print(e)
+        for club in clubs:
+            print(f"club = {club}")
+            print(f"club points : {club['points']}")
 
 
 # TODO: Add route for points display
