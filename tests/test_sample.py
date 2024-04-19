@@ -9,7 +9,6 @@ from flask import Response
 
 
 class TestServerApp:
-
     def setup_method(self):
         app.config.from_object(TestConfig)
         self.known_email = "lifters@test.com"
@@ -116,6 +115,38 @@ class TestServerApp:
             response_data: str = html.unescape(response.data.decode())
             assert (
                 f"Sorry, there are not enough places left in this competition to purchase {original_number_of_places + 1} places."
+                in response_data
+            )
+
+            # Set the club's points and competitions number of places back to the original points
+            club["points"] = str(original_points)
+            competition["numberOfPlaces"] = str(original_number_of_places)
+            save_data(self.competitions, self.clubs)
+
+    def test_purchasePlaces_more_than_12_places_in_competition(self):
+        """Test that a club cannot purchase more than 12 places at a time even if it has enough points."""
+        with app.test_client() as client:
+            # There is 23 places left to purchase in this competition
+            competition = self.competitions[1]
+            # Club with 20 points
+            club = self.clubs[2]
+            original_points = int(club["points"])
+            original_number_of_places = int(competition["numberOfPlaces"])
+
+            response: Response = client.post(
+                "/purchasePlaces",
+                data={
+                    "competition": competition["name"],
+                    "club": club["name"],
+                    "places": 13,
+                },
+            )
+
+            assert response.status_code == 400
+            # Handle the escaped HTML (' -> &#39;)
+            response_data: str = html.unescape(response.data.decode())
+            assert (
+                f"Sorry, you can't purchase more than 12 places at a time."
                 in response_data
             )
 
