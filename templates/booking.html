@@ -3,19 +3,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Booking for {{competition['name']}} || GUDLFT</title>
-    <script>
-      function validateForm() {
-        var points = parseInt(document.getElementById("points").textContent);
-        var places = parseInt(document.getElementById("places").value);
-        if (points < places) {
-          alert("You don't have enough points for this number of places.");
-          return false;
-        }
-        return true;
-      }
-    </script>
   </head>
   <body>
+    {% if message %}
+      <p>{{ message }}</p>
+    {% endif %}
     <h2>{{competition['name']}}</h2>
     Points available: <span id="points">{{club['points']}}</span> <br />
     Places available: {{competition['numberOfPlaces']}}
