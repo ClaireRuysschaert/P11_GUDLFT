@@ -182,3 +182,15 @@ class TestServerApp:
             club["points"] = str(original_points)
             competition["numberOfPlaces"] = str(original_number_of_places)
             save_data(self.competitions, self.clubs)
+
+    def test_points_display_board_access_without_login(self):
+        with app.test_client() as client:
+            response: Response = client.get("/points")
+            assert response.status_code == 200
+    
+    def test_points_access_with_login(self):
+        with app.test_client() as client:
+            with client.session_transaction() as session:
+                session['user'] = self.known_email
+            response: Response = client.get("/points")
+            assert response.status_code == 200
