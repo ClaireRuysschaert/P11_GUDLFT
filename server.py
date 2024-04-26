@@ -82,15 +82,14 @@ def showSummary():
 @app.route("/book/<competition>/<club>")
 def book(competition, club):
     competitions, clubs = load_data()
-    foundClub = [c for c in clubs if c["name"] == club][0]
-    foundCompetition = [c for c in competitions if c["name"] == competition][0]
-    if foundClub and foundCompetition:
+    try:
+        foundClub = [c for c in clubs if c["name"] == club][0]
+        foundCompetition = [c for c in competitions if c["name"] == competition][0]
         return render_template(
             "booking.html", club=foundClub, competition=foundCompetition
         )
-    else:
-        flash("Something went wrong-please try again")
-        return render_template("welcome.html", club=club, competitions=competitions)
+    except IndexError:
+        return ( render_template( "welcome.html", club=clubs[0], competitions=competitions, message="Something went wrong-please try again", ), 400, )
 
 
 @app.route("/purchasePlaces", methods=["POST"])
@@ -166,21 +165,23 @@ def purchasePlaces():
             competitions=competitions,
             message="Great-booking complete!",
         )
-    except IndexError as e:
-        print("Error in purchasePlaces")
-        for compet in competitions:
-            print(f"compet = {compet}")
-        print(f'competition form : {request.form["competition"]}')
-        print(e)
-        for club in clubs:
-            print(f"club = {club}")
-            print(f"club points : {club['points']}")
+    except IndexError:
+        return (
+            render_template(
+                "welcome.html",
+                club=clubs[0],
+                competitions=competitions,
+                message="Sorry, something went wrong. Please try again.",
+            ),
+            400,
+        )
 
 
 @app.route("/points")
 def points():
     competitions, clubs = load_data()
     return render_template("club_points_board.html", clubs=clubs)
+
 
 @app.route("/logout")
 def logout():

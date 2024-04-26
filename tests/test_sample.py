@@ -36,7 +36,19 @@ class TestServerApp:
                 in response_data
             )
             assert f"Welcome, {self.unkonwn_email}".encode() not in response.data
-
+    
+    def test_showSummary_no_email(self):
+        with app.test_client() as client:
+            response: Response = client.post(
+                "/showSummary", data={"email": ""}
+            )
+            assert response.status_code == 404
+            assert (
+                b"Please enter your email address"
+                in response.data
+            )
+            assert f"Welcome, {self.unkonwn_email}".encode() not in response.data
+    
     def test_purchasePlaces_all_clubs(self):
         """Test that all clubs can purchase places in the competition and that the points are deducted correctly.
         If the club doesn't have enough points, the purchase should fail.
@@ -183,6 +195,30 @@ class TestServerApp:
             competition["numberOfPlaces"] = str(original_number_of_places)
             save_data(self.competitions, self.clubs)
 
+    def test_purchasePlaces_invalid_club_or_competition(self):
+        with app.test_client() as client:
+            response: Response = client.post(
+                "/purchasePlaces",
+                data={
+                    "competition": self.competitions[0]["name"],
+                    "club": "Invalid Club",
+                    "places": 1,
+                },
+            )
+            assert response.status_code == 400
+            assert b"Sorry, something went wrong. Please try again." in response.data
+
+            response: Response = client.post(
+                "/purchasePlaces",
+                data={
+                    "competition": "Invalid Competition",
+                    "club": self.clubs[0]["name"],
+                    "places": 1,
+                },
+            )
+            assert response.status_code == 400
+            assert b"Sorry, something went wrong. Please try again." in response.data
+  
     def test_points_display_board_access_without_login(self):
         with app.test_client() as client:
             response: Response = client.get("/points")
@@ -194,3 +230,48 @@ class TestServerApp:
                 session['user'] = self.known_email
             response: Response = client.get("/points")
             assert response.status_code == 200
+
+    def test_logout(self):
+        with app.test_client() as client:
+            with client.session_transaction() as session:
+                session['user'] = self.known_email
+            response: Response = client.get("/logout", follow_redirects=True)
+            assert response.status_code == 200
+            assert b"Please enter your secretary email to continue" in response.data
+
+    def test_index(self):
+        with app.test_client() as client:
+            response: Response = client.get("/")
+            assert response.status_code == 200
+            assert b"Please enter your secretary email to continue" in response.data
+
+    def test_load_data_regular_config(self):
+        with app.test_client() as client:
+            app.config["TESTING"] = False
+            competitions, clubs = load_data()
+            assert competitions is not None
+            for competition in competitions:
+                assert "test" not in competition["name"]
+            assert clubs is not None
+            for club in clubs:
+                assert "test" not in club["name"]
+            app.config["TESTING"] = True
+
+    def test_book(self):
+        with app.test_client() as client:
+            # Test with a known competition and club
+            competition = self.competitions[0]
+            club = self.clubs[0]
+            response = client.get(f"/book/{competition['name']}/{club['name']}")
+            assert response.status_code == 200
+            response_data = response.data.decode()
+            assert f"Booking for {competition['name']}" in response_data
+
+            # Test with an unknown competition or club
+            response = client.get(f"/book/UnknownCompetition/{club['name']}")
+            assert response.status_code == 400
+            assert b"Something went wrong-please try again" in response.data
+
+            response = client.get(f"/book/{competition['name']}/UnknownClub")
+            assert response.status_code == 400
+            assert b"Something went wrong-please try again" in response.data
