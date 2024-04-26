@@ -120,8 +120,8 @@ def purchasePlaces():
                 400,
             )
 
-        MAX_PLACES_ALLOWES_TO_PURCHASE = 12
-        if desired_places > MAX_PLACES_ALLOWES_TO_PURCHASE:
+        MAX_PLACES_ALLOWED_TO_PURCHASE = 12
+        if desired_places > MAX_PLACES_ALLOWED_TO_PURCHASE:
             return (
                 render_template(
                     "booking.html",
@@ -177,8 +177,10 @@ def purchasePlaces():
             print(f"club points : {club['points']}")
 
 
-# TODO: Add route for points display
-
+@app.route("/points")
+def points():
+    competitions, clubs = load_data()
+    return render_template("club_points_board.html", clubs=clubs)
 
 @app.route("/logout")
 def logout():

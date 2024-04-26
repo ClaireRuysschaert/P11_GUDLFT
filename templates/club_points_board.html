@@ -1,0 +1,23 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Club Points Board | GUDLFT Registration</title>
+</head>
+<body>
+    {% if logged_in %}
+    <a href="{{url_for('logout')}}">Logout</a>
+    {% endif %}
+    <h3>Club Points Board</h3>
+    <ul>
+        {% for club in clubs %}
+        <li>
+            {{club['name']}}
+            <br /> Mail: {{club['email']}}
+            <br /> Points: {{club['points']}}
+        </li>
+        <hr />
+        {% endfor %}
+    </ul>
+</body>
+</html>
