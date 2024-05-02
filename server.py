@@ -1,6 +1,6 @@
 from datetime import datetime
 import json
-from flask import Flask, render_template, request, redirect, flash, url_for
+from flask import Flask, render_template, request, redirect, url_for
 
 
 class Config(object):
@@ -32,7 +32,7 @@ def loadCompetitions():
 
 
 def load_data():
-    if app.config["TESTING"] == True:
+    if app.config["TESTING"] is True:
         app.config.from_object(TestConfig)
     else:
         app.config.from_object(Config)
@@ -72,7 +72,8 @@ def showSummary():
             return (
                 render_template(
                     "index.html",
-                    message="Sorry, we don't have your email address in our records. Please try again or contact the club.",
+                    message="Sorry, we don't have your email address in our"
+                    "records. Please try again or contact the club.",
                 ),
                 404,
             )
@@ -89,7 +90,15 @@ def book(competition, club):
             "booking.html", club=foundClub, competition=foundCompetition
         )
     except IndexError:
-        return ( render_template( "welcome.html", club=clubs[0], competitions=competitions, message="Something went wrong-please try again", ), 400, )
+        return (
+            render_template(
+                "welcome.html",
+                club=clubs[0],
+                competitions=competitions,
+                message="Something went wrong-please try again",
+            ),
+            400,
+        )
 
 
 @app.route("/purchasePlaces", methods=["POST"])
@@ -137,7 +146,8 @@ def purchasePlaces():
                     "booking.html",
                     club=club,
                     competition=competition,
-                    message=f"Sorry, you don't have enough points to purchase {desired_places} places.",
+                    message="Sorry, you don't have enough points to purchase"
+                    f"{desired_places} places.",
                 ),
                 400,
             )
@@ -148,7 +158,8 @@ def purchasePlaces():
                     "booking.html",
                     club=club,
                     competition=competition,
-                    message=f"Sorry, there are not enough places left in this competition to purchase {desired_places} places.",
+                    message="Sorry, there are not enough places left in this"
+                    f"competition to purchase {desired_places} places.",
                 ),
                 400,
             )

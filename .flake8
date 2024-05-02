@@ -1,0 +1,6 @@
+[flake8]
+    exclude = .git,*migrations*,*venv*,*env*, *lib*, *include*, *bin*
+    doctests = True
+    max-line-length = 88
+    max-complexity = 10
+    docstring-convention = google
