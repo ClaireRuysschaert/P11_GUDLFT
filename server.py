@@ -72,7 +72,7 @@ def showSummary():
             return (
                 render_template(
                     "index.html",
-                    message="Sorry, we don't have your email address in our"
+                    message="Sorry, we don't have your email address in our "
                     "records. Please try again or contact the club.",
                 ),
                 404,
@@ -146,7 +146,7 @@ def purchasePlaces():
                     "booking.html",
                     club=club,
                     competition=competition,
-                    message="Sorry, you don't have enough points to purchase"
+                    message="Sorry, you don't have enough points to purchase "
                     f"{desired_places} places.",
                 ),
                 400,
@@ -158,7 +158,7 @@ def purchasePlaces():
                     "booking.html",
                     club=club,
                     competition=competition,
-                    message="Sorry, there are not enough places left in this"
+                    message="Sorry, there are not enough places left in this "
                     f"competition to purchase {desired_places} places.",
                 ),
                 400,

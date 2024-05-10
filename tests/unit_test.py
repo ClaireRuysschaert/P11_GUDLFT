@@ -32,7 +32,7 @@ class TestUnitServerApp:
             # Handle the escaped HTML (' -> &#39;)
             response_data: str = html.unescape(response.data.decode())
             assert (
-                "Sorry, we don't have your email address in our records."
+                "Sorry, we don't have your email address in our records. "
                 "Please try again or contact the club."
                 in response_data
             )
@@ -93,7 +93,7 @@ class TestUnitServerApp:
                     # Handle the escaped HTML (' -> &#39;)
                     response_data: str = html.unescape(response.data.decode())
                     assert (
-                        "Sorry, you don't have enough points to purchase"
+                        "Sorry, you don't have enough points to purchase "
                         f"{PLACES_PURCHASED} places."
                         in response_data
                     )
@@ -127,7 +127,7 @@ class TestUnitServerApp:
             # Handle the escaped HTML (' -> &#39;)
             response_data: str = html.unescape(response.data.decode())
             assert (
-                "Sorry, there are not enough places left in this competition"
+                "Sorry, there are not enough places left in this competition "
                 f"to purchase {original_number_of_places + 1} places."
                 in response_data
             )

@@ -67,7 +67,7 @@ class TestIntegrationServerApp:
                     == original_number_of_places - PLACES_PURCHASED
                 )
             assert (
-                "Number of Places:"
+                "Number of Places: "
                 f"{original_number_of_places - PLACES_PURCHASED}".encode()
                 in response.data
             )
